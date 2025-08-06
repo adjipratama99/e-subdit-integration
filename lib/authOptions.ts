@@ -30,6 +30,8 @@ export const authOptions = {
             .eq("username", username)
             .single();
 
+          console.log(user)
+
           if (error || !user) {
             console.error(error);
             throw new Error("Username atau password salah.");
