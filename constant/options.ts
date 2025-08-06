@@ -52,8 +52,8 @@ export const DataType = [{
     value: "absensi",
     text: "Absensi"
 },{
-    value: "personel",
-    text: "Personel"
+    value: "personnel",
+    text: "Pendidikan"
 },{
     value: "lp-li",
     text: "Pelaporan LP & LI"

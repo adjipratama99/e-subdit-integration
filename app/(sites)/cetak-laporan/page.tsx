@@ -19,11 +19,12 @@ import {
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { useCustomQuery } from "@/hooks/useQueryData";
 import { GET_REPORT_LIST } from "@/constant/key";
-import { AbsensiType, Penanganan, Pendidikan, ResponseTableTypes } from "@/types/general";
+import { AbsensiType, Penanganan, Pendidikan, Personel, ResponseTableTypes } from "@/types/general";
 import RenderPrintPreviewLPLI from "./components/render-print-lp-li";
 import { usePrint } from "@/hooks/use-print";
 import { Button } from "@/components/ui/button";
 import { FaFilter, FaPrint } from "react-icons/fa";
+import RenderPrintPreviewPendidikan from "./components/render-print-pendidikan";
 
 export default function CetakLaporan(): React.JSX.Element {
     const printRef = useRef<HTMLDivElement>(null)
@@ -41,7 +42,8 @@ export default function CetakLaporan(): React.JSX.Element {
         params: {
             dateFrom: dateRange.dateFrom,
             dateUntil: dateRange.dateUntil,
-            ...(jenis.length && { jenis })
+            ...(jenis.length && { jenis }),
+            ...(typeData === "personnel" && { report: true, offset: 0, limit: 9999 })
         },
         makeLoading: true,
         enabled: !!typeData,
@@ -58,34 +60,40 @@ export default function CetakLaporan(): React.JSX.Element {
                         <Fragment>
                             <div className="flex justify-between items-center">
                                 <div className="flex items-center gap-4">
-                                    <div className="flex items-center gap-2">
-                                        <Label value="Rentang Tanggal" isRequired />
-                                        <DateRangePicker
-                                            format="yyyy-MM-dd"
-                                            cleanable={false}
-                                            shouldDisableDate={allowedMaxDays(30)}
-                                            onChange={(val) =>
-                                                dispatch(
-                                                    changeDateRange({
-                                                        dateFrom: val ? val[0].toISOString() : "",
-                                                        dateUntil: val ? val[1].toISOString() : "",
-                                                    })
-                                                )
-                                            }
-                                            value={[new Date(dateRange.dateFrom), new Date(dateRange.dateUntil)]}
-                                        />
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex items-center gap-2">
-                                            <Label value="Jenis" />
-                                            <Select
-                                                isMulti
-                                                options={JenisLPLI}
-                                                onChange={(val) => dispatch(changeJenis(val as string))}
-                                                value={jenis}
-                                            />
-                                        </div>
-                                    </div>
+                                    {
+                                        typeData !== "personnel" && (
+                                            <Fragment>
+                                                <div className="flex items-center gap-2">
+                                                    <Label value="Rentang Tanggal" isRequired />
+                                                    <DateRangePicker
+                                                        format="yyyy-MM-dd"
+                                                        cleanable={false}
+                                                        shouldDisableDate={allowedMaxDays(30)}
+                                                        onChange={(val) =>
+                                                            dispatch(
+                                                                changeDateRange({
+                                                                    dateFrom: val ? val[0].toISOString() : "",
+                                                                    dateUntil: val ? val[1].toISOString() : "",
+                                                                })
+                                                            )
+                                                        }
+                                                        value={[new Date(dateRange.dateFrom), new Date(dateRange.dateUntil)]}
+                                                    />
+                                                </div>
+                                                <div className="flex items-center gap-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <Label value="Jenis" />
+                                                        <Select
+                                                            isMulti
+                                                            options={JenisLPLI}
+                                                            onChange={(val) => dispatch(changeJenis(val as string))}
+                                                            value={jenis}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </Fragment>
+                                        )
+                                    }
                                 </div>
                                 <Button type="button" onClick={() => dispatch(toggleOpen())}><FaFilter />Ganti Tipe Dokumen</Button>
                             </div>
@@ -104,9 +112,8 @@ export default function CetakLaporan(): React.JSX.Element {
                                     </div>
                                     <div className="flex justify-center">
                                         <div className="w-[calc(100%-70px)] bg-gray-400 border h-[750px] overflow-y-scroll">
-                                            {
-                                                typeData === "lp-li" && (<RenderPrintPreviewLPLI data={data.content.results as Penanganan[]} ref={printRef} />)
-                                            }
+                                            { typeData === "lp-li" && (<RenderPrintPreviewLPLI data={data.content.results as Penanganan[]} ref={printRef} />) }
+                                            { typeData === "personnel" && (<RenderPrintPreviewPendidikan data={data.content.results as Personel[]} ref={printRef} />) }
                                         </div>
                                     </div>
                                 </div>

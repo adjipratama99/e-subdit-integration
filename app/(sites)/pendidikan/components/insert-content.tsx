@@ -52,7 +52,6 @@ export function PendidikanPersonelFormContent({ onSuccess }: { onSuccess?: () =>
       jenis: "",
       nama_sekolah: "",
       tahun_mulai: "",
-      tahun_selesai: "",
     },
     onSubmit: async ({ value }) => {
       const params = {
@@ -144,29 +143,6 @@ export function PendidikanPersonelFormContent({ onSuccess }: { onSuccess?: () =>
               <Input
                 type="text"
                 placeholder="Masukkan Tahun Mulai ..."
-                onChange={(e) => field.handleChange(e.target.value)}
-                value={field.state.value}
-                required
-              />
-              {field.state.meta.errors?.[0] && (
-                <p className="text-red-500 text-xs">
-                  {field.state.meta.errors[0]}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-      />
-
-      <form.Field
-        name="tahun_selesai"
-        children={(field) => (
-          <div className="grid grid-cols-3 gap-4">
-            <Label value="Tahun Selesai" isRequired />
-            <div className="col-span-2">
-              <Input
-                type="text"
-                placeholder="Masukkan Tahun Selesai ..."
                 onChange={(e) => field.handleChange(e.target.value)}
                 value={field.state.value}
                 required

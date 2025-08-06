@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
+import { Personel } from "@/types/general";
 
 const tableName = process.env.NEXT_PUBLIC_PERSONNEL_NAME as string;
 
@@ -72,11 +73,14 @@ export async function POST(req: Request) {
             ${ process.env.NEXT_PUBLIC_PERSONNEL_EDUCATION_NAME } (
               jenis,
               nama_sekolah,
-              tahun_mulai,
-              tahun_selesai
+              tahun_mulai
           )`)
           .order(key as string, { ascending })
           .range(offset, offset + limit - 1);
+
+        const sortedData = [
+            ...((data as unknown as Personel[])?.filter((item) => item.pendidikan?.length > 0) || [])
+        ];
 
         if (error) throw error;
 
@@ -84,7 +88,7 @@ export async function POST(req: Request) {
           code: 0,
           content: {
             count,
-            results: data || [],
+            results: ((params?.report) ? sortedData : data) || [],
           },
           message: "Personel fetched successfully",
         });

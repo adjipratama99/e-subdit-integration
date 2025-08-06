@@ -6,7 +6,7 @@ import { formatInTimeZone } from "date-fns-tz";
 import { Button } from "@/components/ui/button";
 import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
 import ActionTable from "@/components/custom/action-table";
-import { GET_LIST_PERSONNEL, GET_LIST_PERSONNEL_EDUCATION, GET_UPDATE_PERSONNEL } from "@/constant/key";
+import { GET_LIST_PERSONNEL_EDUCATION, GET_UPDATE_PERSONNEL } from "@/constant/key";
 import { useCustomMutation } from "@/hooks/useQueryData";
 import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "@tanstack/react-form";
@@ -45,9 +45,6 @@ export const columns = [
   columnHelper.accessor("tahun_mulai", {
     header: "Tahun Mulai",
   }),
-  columnHelper.accessor("tahun_selesai", {
-    header: "Tahun Selesai",
-  }),
   columnHelper.accessor("id", {
     header: "Aksi",
     cell: (info) => {
@@ -76,7 +73,7 @@ function ContentUpdate({ data, onClose }: { data: Pendidikan; onClose: React.Dis
     makeLoading: true,
     callbackResult(res) {
       if(res.code === 0) {
-        query.invalidateQueries({ queryKey: [GET_LIST_PERSONNEL] })
+        query.invalidateQueries({ queryKey: [GET_LIST_PERSONNEL_EDUCATION] })
         onClose(false)
       }
 
@@ -88,8 +85,7 @@ function ContentUpdate({ data, onClose }: { data: Pendidikan; onClose: React.Dis
     defaultValues: {
       jenis: data.jenis,
       nama_sekolah: data.nama_sekolah,
-      tahun_mulai: data.tahun_mulai,
-      tahun_selesai: data.tahun_selesai
+      tahun_mulai: data.tahun_mulai
     },
     onSubmit: async ({ value }) => {
       const params = {
@@ -163,29 +159,6 @@ function ContentUpdate({ data, onClose }: { data: Pendidikan; onClose: React.Dis
               <Input
                 type="text"
                 placeholder="Masukkan Tahun Mulai ..."
-                onChange={(e) => field.handleChange(parseInt(e.target.value))}
-                value={field.state.value}
-                required
-              />
-              {field.state.meta.errors?.[0] && (
-                <p className="text-red-500 text-xs">
-                  {field.state.meta.errors[0]}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-      />
-
-      <form.Field
-        name="tahun_selesai"
-        children={(field) => (
-          <div className="grid grid-cols-3 gap-4">
-            <Label value="Tahun Selesai" isRequired />
-            <div className="col-span-2">
-              <Input
-                type="text"
-                placeholder="Masukkan Tahun Selesai ..."
                 onChange={(e) => field.handleChange(parseInt(e.target.value))}
                 value={field.state.value}
                 required

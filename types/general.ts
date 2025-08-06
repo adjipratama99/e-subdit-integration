@@ -34,6 +34,13 @@ export type Personel = {
     nrp: string;
     pangkat: string;
     jabatan: string;
+    pendidikan: Pendidikan[];
+    umum?: Pendidikan[];
+    kepolisian?: Pendidikan[];
+    kejuruan?: Pendidikan[];
+    is_detective: boolean;
+    skep: string;
+    certified: boolean;
     created_at: string; // ISO date string
     updated_at: string; // ISO date string
 };
@@ -45,7 +52,6 @@ export type Pendidikan = {
     personel: Personel;
     personel_id: string;
     tahun_mulai: number;
-    tahun_selesai: number;
     created_at: string
 }
 
