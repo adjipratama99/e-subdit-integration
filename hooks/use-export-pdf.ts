@@ -12,8 +12,8 @@ interface PdfGeneratorProps {
   typeData: "lp-li" | "absensi" | "personnel";
   centerBody?: boolean;
   dateRange?: {
-    dateFrom: Date
-    dateUntil: Date
+    dateFrom: Date | string
+    dateUntil: Date | string
   }
 }
 
