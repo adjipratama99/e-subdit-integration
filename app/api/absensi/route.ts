@@ -13,14 +13,32 @@ export async function POST(req: Request) {
     switch (action) {
       case "CREATE": {
         const { personel_id, jam_datang, jam_pulang, status, tanggal } = params;
-
+      
+        // 1. Cek dulu apakah data sudah ada
+        const { data: existing, error: checkError } = await supabase
+          .from(tableName)
+          .select("*")
+          .eq("personel_id", personel_id)
+          .eq("tanggal", tanggal)
+          .maybeSingle();
+      
+        if (checkError) throw checkError;
+      
+        if (existing) {
+          return NextResponse.json({
+            code: 1,
+            message: "Absensi untuk personel dan tanggal tersebut sudah ada.",
+          });
+        }
+      
+        // 2. Kalau belum ada, insert data baru
         const { data, error } = await supabase
           .from(tableName)
           .insert([{ personel_id, jam_datang, jam_pulang, status, tanggal }])
           .select("*");
-
+      
         if (error) throw error;
-
+      
         return NextResponse.json({
           code: 0,
           content: data,
@@ -31,31 +49,64 @@ export async function POST(req: Request) {
       case "READ": {
         const search = params?.search || "";
         const sort = params?.sort || { created_at: true };
+        const report = params?.report || false;
+        const date = params?.date || null;
         const key = Object.keys(sort)[0] as keyof typeof sort;
         const ascending = sort[key] !== false && sort[key] !== -1;
-
+      
         const searchColumns = ["personel.nama", "status"];
-
+      
         const buildQuery = (selectStr = "*", selectOpts = {}) => {
           let q = supabase.from(tableName).select(selectStr, selectOpts);
-        
+      
           if (search) {
             const orFilter = searchColumns
               .map((col) => `${col}.ilike.%${search}%`)
               .join(",");
             q = q.or(orFilter);
           }
-        
+      
           return q;
         };
-        
-        // Ambil count
+      
+        // ======== REPORT MODE (based on date) ========
+        if (report && date) {
+          const startOfDay = new Date(date);
+          startOfDay.setHours(0, 0, 0, 0);
+          const endOfDay = new Date(date);
+          endOfDay.setHours(23, 59, 59, 999);
+      
+          const { data, error } = await buildQuery(`*,
+              personel:personel_id (
+                id,
+                nama,
+                nrp,
+                pangkat,
+                jabatan
+            )`)
+            .gte("created_at", startOfDay.toISOString())
+            .lte("created_at", endOfDay.toISOString())
+            .order(key as string, { ascending });
+      
+          if (error) throw error;
+      
+          return NextResponse.json({
+            code: 0,
+            content: {
+              count: data?.length || 0,
+              results: data || [],
+            },
+            message: `Laporan berhasil diambil untuk tanggal ${date}`,
+          });
+        }
+      
+        // ======== NORMAL MODE ========
         let count: number | null = null;
         let countError = null;
-        
+      
         try {
           const { count: _count, error } = await buildQuery(`*,
-            ${ process.env.NEXT_PUBLIC_PERSONNEL_NAME }:personel_id (
+            ${process.env.NEXT_PUBLIC_PERSONNEL_NAME}:personel_id (
               id,
               nama,
               nrp,
@@ -63,18 +114,17 @@ export async function POST(req: Request) {
               jabatan
             )`, {
             count: "exact",
-            head: false, // head: false biar compatible sama or()
+            head: false,
           });
-        
+      
           count = _count;
           countError = error;
         } catch (err) {
           console.error("Error count search:", err);
         }
-
+      
         if (countError) throw countError;
-
-        // Fetch paginated & sorted data
+      
         const { data, error } = await buildQuery(`*,
             personel:personel_id (
               id,
@@ -85,9 +135,9 @@ export async function POST(req: Request) {
           )`)
           .order(key as string, { ascending })
           .range(offset, offset + limit - 1);
-
+      
         if (error) throw error;
-
+      
         return NextResponse.json({
           code: 0,
           content: {
@@ -96,7 +146,7 @@ export async function POST(req: Request) {
           },
           message: "Personel fetched successfully",
         });
-      }
+      }            
 
       case "UPDATE": {
         const { id, ...updateData } = params;

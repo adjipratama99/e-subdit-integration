@@ -1,6 +1,6 @@
 import { RefObject, useCallback } from "react";
 
-export function usePrint<T extends HTMLElement = HTMLElement>(printRef: RefObject<T>) {
+export function usePrint<T extends HTMLElement = HTMLElement>(printRef: RefObject<T>, typeData: string) {
   const handlePrint = useCallback(() => {
         if (!printRef.current) {
             console.error("printRef is not attached to an element!");
@@ -36,8 +36,8 @@ export function usePrint<T extends HTMLElement = HTMLElement>(printRef: RefObjec
                 <head>
                     <title>Print Preview</title>
                     <style>
-                        @page {
-                            size: landscape;
+                        ${
+                            typeData !== "absensi" ? '@page { size: landscape }' : ""
                         }
                         ${styles}
                         @media print {

@@ -11,7 +11,8 @@ interface ReportState {
     open: boolean;
     typeData: string;
     hasClearedData: boolean;
-    dateRange: DateRange
+    dateRange: DateRange;
+    date: string;
     jenis: string;
 }
 
@@ -24,6 +25,7 @@ const initialState: ReportState = {
         dateFrom: format(subWeeks(new Date(), 1), 'yyyy-MM-dd'),
         dateUntil: format(new Date(), 'yyyy-MM-dd')
     },
+    date: format(new Date(), 'yyyy-MM-dd'),
     jenis: "",
 };
 
@@ -46,6 +48,9 @@ export const reportSlice = createSlice({
         changeDateRange: (state, action: PayloadAction<DateRange>) => {
             state.dateRange = action.payload;
         },
+        changeDate: (state, action: PayloadAction<string>) => {
+            state.date = action.payload;
+        },
         changeJenis: (state, action: PayloadAction<string>) => {
             state.jenis = action.payload;
         },
@@ -58,6 +63,7 @@ export const {
     toggleClearedData,
     changeTypeData,
     changeDateRange,
+    changeDate,
     changeJenis
 } = reportSlice.actions;
 

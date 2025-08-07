@@ -90,12 +90,12 @@ export type ResponseTableTypes = {
 
 export type AbsensiType = {
     id: string;
+    created_at: Date;
     personel_id: string;
     personel: Personel;
     tanggal: string;
-    jam_datang: string | null;
-    jam_pulang: string | null;
+    jam_datang: Date;
+    jam_pulang: Date;
     status: string | null;
     qr_code: string | null;
-    created_at: string;
 };

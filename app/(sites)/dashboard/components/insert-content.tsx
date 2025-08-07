@@ -8,7 +8,7 @@ import { GET_INSERT_ABSENSI, GET_LIST_PERSONNEL } from "@/constant/key";
 import { formatInTimeZone } from "date-fns-tz"
 import { DatePicker } from "rsuite"
 import 'rsuite/DatePicker/styles/index.css';
-import { addDays, endOfDay, startOfDay, format } from "date-fns";
+import { addDays, endOfDay, startOfDay, format, setMilliseconds, setSeconds, setMinutes, setHours } from "date-fns";
 import { Label } from "@/components/custom/form/label";
 import { Select } from "@/components/custom/form/select";
 import { Personel } from "@/types/general";
@@ -17,8 +17,15 @@ import { statusCheck } from "@/constant/options";
 const disableAfterOneDays = (date: Date) => {
   const today = startOfDay(new Date());
   const tomorrow = addDays(today, 1);
+  const endOfTomorrow = setMilliseconds(
+      setSeconds(
+          setMinutes(
+              setHours(tomorrow, 8),
+          59),
+      59),
+  999);
 
-  return date < today || date > tomorrow;
+  return date < today || date > endOfTomorrow;
 };
 
 const disableBeforeToday = (date: Date) => {
