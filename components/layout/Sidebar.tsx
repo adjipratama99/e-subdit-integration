@@ -6,6 +6,7 @@ import { useSidebar } from "@/context/useSidebarContext";
 import { signOut } from "next-auth/react";
 import { sidebarMenu } from "@/constant/menu";
 import { LogOut } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function Sidebar() {
     const { isOpen } = useSidebar();
@@ -18,7 +19,7 @@ export default function Sidebar() {
                     animate={{ x: 0, opacity: 1 }}
                     exit={{ x: -250, opacity: 0 }}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                    className="fixed md:relative top-0 left-0 z-100 pointer-events-auto w-74 h-full bg-gradient-to-b from-indigo-600 to-purple-600 text-white flex flex-col p-6 shadow-lg"
+                    className="fixed md:relative top-0 left-0 sm:z-100 pointer-events-auto w-74 h-full bg-gradient-to-b from-indigo-600 to-purple-600 text-white flex flex-col p-6 shadow-lg"
                 >
                     <h1 className="text-2xl font-bold mb-8">
                         { process.env.NEXT_PUBLIC_APP_NAME }
@@ -28,7 +29,10 @@ export default function Sidebar() {
                             <Link
                                 key={label}
                                 href={href}
-                                className="flex items-center gap-3 p-2 rounded hover:bg-white/20 transition-colors"
+                                className={cn(
+                                    "items-center gap-3 p-2 rounded hover:bg-white/20 transition-colors",
+                                    href === "/cetak-laporan" ? "hidden sm:flex" : "flex"
+                                )}
                             >
                                 <Icon />
                                 <span className="text-lg">{label}</span>

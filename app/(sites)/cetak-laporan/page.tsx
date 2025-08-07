@@ -88,6 +88,7 @@ export default function CetakLaporan(): React.JSX.Element {
                                                         <Label value="Jenis" />
                                                         <Select
                                                             isMulti
+                                                            className="z-30"
                                                             options={JenisLPLI}
                                                             onChange={(val) => dispatch(changeJenis(val as string))}
                                                             value={jenis}
@@ -103,6 +104,7 @@ export default function CetakLaporan(): React.JSX.Element {
                                                 <Label value="Tanggal" isRequired />
                                                 <DatePicker
                                                     format="yyyy-MM-dd"
+                                                    className="relative z-20"
                                                     cleanable={false}
                                                     onChange={(val) =>
                                                         dispatch(
