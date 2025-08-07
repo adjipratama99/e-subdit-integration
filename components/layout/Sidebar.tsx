@@ -31,7 +31,7 @@ export default function Sidebar() {
                                 href={href}
                                 className={cn(
                                     "items-center gap-3 p-2 rounded hover:bg-white/20 transition-colors",
-                                    href === "/cetak-laporan" ? "hidden sm:flex" : "flex"
+                                    href === "/cetak-laporan" ? "hidden md:flex" : "flex"
                                 )}
                             >
                                 <Icon />
