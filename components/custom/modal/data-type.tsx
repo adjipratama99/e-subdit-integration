@@ -9,6 +9,7 @@ import React, { useState } from "react";
 import { toast } from "sonner";
 import { changeTypeData, toggleClearedData, toggleOpen } from "@/redux/slices/reportSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { typeDatas } from "@/types/general";
 
 type DataTypes = {
     open: boolean;
@@ -28,7 +29,7 @@ export default function ModalTypeData({ open }: DataTypes): React.JSX.Element {
 function ModalContent() {
     const dispatch = useAppDispatch()
     const { typeData } = useAppSelector((state) => state.report)
-    const [selectedData, setSelectedData] = useState<string>(typeData);
+    const [selectedData, setSelectedData] = useState<typeDatas>(typeData!);
 
     const handleSubmit = () => {
         if(!selectedData) {
@@ -48,7 +49,7 @@ function ModalContent() {
                 <Select
                     placeholder="Pilih sumber data"
                     options={DataType}
-                    onChange={(val) => setSelectedData(val as string)}
+                    onChange={(val) => setSelectedData(val as typeDatas)}
                     value={selectedData}
                     isModal
                 />

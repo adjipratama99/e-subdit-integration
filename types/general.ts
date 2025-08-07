@@ -112,3 +112,5 @@ export type TableHeader = {
     colSpan?: number
     rowSpan?: number
   }
+
+  export type typeDatas = "lp-li" | "absensi" | "personnel"
