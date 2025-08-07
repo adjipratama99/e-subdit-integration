@@ -55,9 +55,7 @@ export const authOptions = {
       },
     })
   ],
-
   secret: process.env.NEXTAUTH_SECRET,
-
   callbacks: {
     async jwt({ token, user, session, trigger }: { token: JWT; user?: any; session?: Session; trigger?: string }) {
       if (user) {
@@ -83,7 +81,6 @@ export const authOptions = {
 
       return token;
     },
-
     async session({ session, token }: { session: Session; token: JWT }) {
       const range_year = getUnixTime(new Date()) + 5 * 365 * 24 * 60 * 60;
       token.exp = range_year;
@@ -99,7 +96,6 @@ export const authOptions = {
 
       return session;
     },
-
     async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
       try {
         const valid = url && url.startsWith(baseUrl);
@@ -109,12 +105,10 @@ export const authOptions = {
       }
     }
   },
-
   pages: {
     signIn: '/login',
     error: '/login',
   },
-
   session: {
     updateAge: 7 * 24 * 60 * 60,
   }
