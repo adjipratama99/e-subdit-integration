@@ -46,6 +46,7 @@ export function PelaporanLPLIFormContent({ onSuccess }: { onSuccess?: () => void
       status_proses: "",
       catatan_hambatan: "",
       rtl: "",
+      keterangan: "",
     },
     onSubmit: async ({ value }) => {
       const params = {
@@ -290,6 +291,48 @@ export function PelaporanLPLIFormContent({ onSuccess }: { onSuccess?: () => void
             <div>
               <Textarea
                 placeholder="Masukkan hambatan ..."
+                onChange={(e) => field.handleChange(e.target.value)}
+                value={field.state.value}
+              />
+              {field.state.meta.errors?.[0] && (
+                <p className="text-red-500 text-xs">
+                  {field.state.meta.errors[0]}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+      />
+
+      <form.Field
+        name="rtl"
+        children={(field) => (
+          <div className="grid grid-cols-1 gap-4">
+            <Label value="Rencana Tindak Lanjut" />
+            <div>
+              <Textarea
+                placeholder="Masukkan rencana tindak lanjut ..."
+                onChange={(e) => field.handleChange(e.target.value)}
+                value={field.state.value}
+              />
+              {field.state.meta.errors?.[0] && (
+                <p className="text-red-500 text-xs">
+                  {field.state.meta.errors[0]}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+      />
+
+      <form.Field
+        name="keterangan"
+        children={(field) => (
+          <div className="grid grid-cols-1 gap-4">
+            <Label value="Keterangan" />
+            <div>
+              <Textarea
+                placeholder="Masukkan keterangan ..."
                 onChange={(e) => field.handleChange(e.target.value)}
                 value={field.state.value}
               />

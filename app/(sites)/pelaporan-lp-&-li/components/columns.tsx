@@ -101,7 +101,8 @@ function ContentUpdate({ data, onClose }: { data: Penanganan; onClose: React.Dis
       terlapor: data.terlapor,
       status_proses: data.status_proses,
       catatan_hambatan: data.catatan_hambatan,
-      rtl: data.rtl
+      rtl: data.rtl,
+      keterangan: data.keterangan,
     },
     onSubmit: async ({ value }) => {
       const params = {
@@ -347,6 +348,48 @@ function ContentUpdate({ data, onClose }: { data: Penanganan; onClose: React.Dis
             <div>
               <Textarea
                 placeholder="Masukkan hambatan ..."
+                onChange={(e) => field.handleChange(e.target.value)}
+                value={field.state.value}
+              />
+              {field.state.meta.errors?.[0] && (
+                <p className="text-red-500 text-xs">
+                  {field.state.meta.errors[0]}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+      />
+
+      <form.Field
+        name="rtl"
+        children={(field) => (
+          <div className="grid grid-cols-1 gap-4">
+            <Label value="Rencana Tindak Lanjut" />
+            <div>
+              <Textarea
+                placeholder="Masukkan rencana tindak lanjut ..."
+                onChange={(e) => field.handleChange(e.target.value)}
+                value={field.state.value}
+              />
+              {field.state.meta.errors?.[0] && (
+                <p className="text-red-500 text-xs">
+                  {field.state.meta.errors[0]}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+      />
+
+      <form.Field
+        name="keterangan"
+        children={(field) => (
+          <div className="grid grid-cols-1 gap-4">
+            <Label value="Keterangan" />
+            <div>
+              <Textarea
+                placeholder="Masukkan keterangan ..."
                 onChange={(e) => field.handleChange(e.target.value)}
                 value={field.state.value}
               />
