@@ -77,7 +77,7 @@ const Login = () => {
           toast.success("Successfully login!", {
             position: "top-center",
           });
-          router.push(redirectUrl || "/dashboard");
+          router.push(redirectUrl || "/personel");
         }
       };
 

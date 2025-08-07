@@ -7,8 +7,10 @@ import { signOut } from "next-auth/react";
 import { sidebarMenu } from "@/constant/menu";
 import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 
 export default function Sidebar() {
+    const pathname = usePathname()
     const { isOpen } = useSidebar();
 
     return (
@@ -31,7 +33,8 @@ export default function Sidebar() {
                                 href={href}
                                 className={cn(
                                     "items-center gap-3 p-2 rounded hover:bg-white/20 transition-colors",
-                                    href === "/cetak-laporan" ? "hidden md:flex" : "flex"
+                                    href === "/cetak-laporan" ? "hidden md:flex" : "flex",
+                                    href === pathname ? "bg-white/20" : ""
                                 )}
                             >
                                 <Icon />

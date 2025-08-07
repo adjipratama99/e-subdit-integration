@@ -3,6 +3,7 @@ import { clsx, type ClassValue } from "clsx"
 import { formatInTimeZone } from "date-fns-tz";
 import { twMerge } from "tailwind-merge"
 import { id } from "date-fns/locale";
+import { differenceInMinutes } from "date-fns";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -28,6 +29,16 @@ export const formatIp = (xForwardedFor: string) => {
   return results[0]
 }
 
+export function differenceTime(time1: Date, time2: Date) { 
+  let start = differenceInMinutes(time1, time2)
+  let hours = start / 60
+  let minutes = start % 60
+  if(hours < 10) hours = `0${hours}` as any
+  if(minutes < 10) minutes = `0${minutes}` as any
+
+  return `${ String(hours).split('.')[0] }:${ minutes }`
+}
+
 export function groupByKey(array: {[key: string]: any}[], key: string) {
   return array.reduce((result, item) => {
       const group = item[key] ?? 'undefined';
@@ -51,10 +62,9 @@ export function generateConfigTablePdf(res: any, typeData: "absensi" | "personne
             { content: "PANGKAT / NRP", styles: { fillColor: [254, 230, 133], textColor: [0, 0, 0] }, rowSpan: 2 },
             { content: "JABATAN", styles: { fillColor: [254, 230, 133], textColor: [0, 0, 0] }, rowSpan: 2 },
             { content: "JAM KEHADIRAN", styles: { fillColor: [254, 230, 133], textColor: [0, 0, 0], halign: "center" }, colSpan: 2 },
-            { content: "TANDA TANGAN", styles: { fillColor: [254, 230, 133], textColor: [0, 0, 0], halign: "center" }, colSpan: 2 }
+            { content: "LAMA KERJA", styles: { fillColor: [254, 230, 133], textColor: [0, 0, 0], halign: "center" }, rowSpan: 2 },
+            { content: "STATUS", styles: { fillColor: [254, 230, 133], textColor: [0, 0, 0], halign: "center" }, rowSpan: 2 }
         ],[
-            { content: "DATANG", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
-            { content: "PULANG", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
             { content: "DATANG", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
             { content: "PULANG", styles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] } },
         ]]
@@ -65,10 +75,10 @@ export function generateConfigTablePdf(res: any, typeData: "absensi" | "personne
                 absensi.personel.nama,
                 `${ absensi.personel.pangkat }\n${ absensi.personel.nrp }`,
                 absensi.personel.jabatan,
-                `${ formatInTimeZone(absensi.jam_datang, 'UTC', 'yyyy-MM-dd') }\n${ formatInTimeZone(absensi.jam_datang, 'UTC', 'HH:mm') }`,
-                `${ formatInTimeZone(absensi.jam_pulang, 'UTC', 'yyyy-MM-dd') }\n${ formatInTimeZone(absensi.jam_pulang, 'UTC', 'HH:mm') }`,
-                "",
-                ""
+                `${ absensi.jam_datang ? `${ formatInTimeZone(absensi.jam_datang, 'UTC', 'yyyy-MM-dd') }\n${ formatInTimeZone(absensi.jam_datang, 'UTC', 'HH:mm') }` : "" }`,
+                `${ absensi.jam_pulang ? `${ formatInTimeZone(absensi.jam_pulang, 'UTC', 'yyyy-MM-dd') }\n${ formatInTimeZone(absensi.jam_pulang, 'UTC', 'HH:mm') }` : "" }`,
+                absensi.status === "Hadir" ? differenceTime(absensi.jam_pulang, absensi.jam_datang) : "",
+                absensi.status?.toUpperCase()
             ]
         })
         break;

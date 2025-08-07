@@ -92,7 +92,7 @@ export function ServerTable<T>({
         </div>
       </div>
 
-      <Table>
+      <Table className="min-w-full w-auto">
         <TableHeader className="bg-gray-50 sticky top-0 z-10 shadow-sm">
           {table.getHeaderGroups().map(headerGroup => (
             <TableRow key={headerGroup.id}>

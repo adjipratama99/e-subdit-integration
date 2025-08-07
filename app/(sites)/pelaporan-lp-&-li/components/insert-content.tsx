@@ -62,119 +62,73 @@ export function PelaporanLPLIFormContent({ onSuccess }: { onSuccess?: () => void
     <form onSubmit={(e) => {
         e.preventDefault()
         form.handleSubmit()
-    }} className="space-y-4">
-      <form.Field
-        name="tanggal"
-        children={(field) => (
-          <div className="grid grid-cols-3 gap-4">
-            <Label value="Tanggal Pelaporan" isRequired />
-            <div className="col-span-2">
-              <DatePicker
-                container={() => document.querySelector('[role="dialog"]') || document.body}
-                value={field.state.value}
-                format="yyyy-MM-dd"
-                onChange={(hour) => field.handleChange(hour as Date)}
-                className="w-full"
-              />
-            </div>
-          </div>
-        )}
-      />
-
-      <form.Field
-        name="nomor"
-        children={(field) => (
-          <div className="grid grid-cols-3 gap-4">
-            <Label value="Nomor Pelaporan" isRequired />
-            <div className="col-span-2">
-              <Input
-                type="text"
-                placeholder="Masukkan nomor ..."
-                onChange={(e) => field.handleChange(e.target.value)}
-                value={field.state.value}
-              />
-            </div>
-          </div>
-        )}
-      />
-
-      <form.Field
-        name="judul"
-        children={(field) => (
-          <div className="grid grid-cols-3 gap-4">
-            <Label value="Judul Pelaporan" isRequired />
-            <div className="col-span-2">
-              <Input
-                type="text"
-                placeholder="Masukkan Judul Pelaporan ..."
-                onChange={(e) => field.handleChange(e.target.value)}
-                value={field.state.value}
-              />
-            </div>
-          </div>
-        )}
-      />
-
-      <form.Field
-        name="jenis"
-        children={(field) => (
-          <div className="grid grid-cols-3 gap-4">
-            <Label value="Jenis Pelaporan" isRequired />
-            <div className="col-span-2">
-              <Select
-                options={JenisLPLI}
-                isModal
-                placeholder="Pilih Jenis"
-                className="w-full"
-                value={field.state.value}
-                onChange={(val) => field.handleChange(val as string)}
-              />
-              {field.state.meta.errors?.[0] && (
-                <p className="text-red-500 text-xs">
-                  {field.state.meta.errors[0]}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-      />
-
-      <form.Field
-        name="kronologis"
-        children={(field) => (
-          <div className="grid grid-cols-1 gap-4">
-            <Label value="Koronologis" isRequired />
-            <div>
-              <Textarea
-                placeholder="Masukkan Kronologis ..."
-                onChange={(e) => field.handleChange(e.target.value)}
-                value={field.state.value}
-                required
-              />
-              {field.state.meta.errors?.[0] && (
-                <p className="text-red-500 text-xs">
-                  {field.state.meta.errors[0]}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-      />
-
-      <div className="grid grid-cols-2 gap-4">
+    }}>
+      <div className="max-h-[600px] overflow-y-scroll space-y-4">
         <form.Field
-          name="pasal"
+          name="tanggal"
           children={(field) => (
-            <div className="grid grid-cols-1 gap-2">
-              <Label value="Pasal" isRequired />
-              <div>
-                <TagInput
-                  onChange={(value) => field.handleChange(value as string[])}
+            <div className="grid grid-cols-3 gap-4">
+              <Label value="Tanggal Pelaporan" isRequired />
+              <div className="col-span-2">
+                <DatePicker
+                  container={() => document.querySelector('[role="dialog"]') || document.body}
                   value={field.state.value}
-                  block
-                  placeholder="Masukkan Pasal dan pisahkan dengan [Enter]"
-                  className="w-full h-[80px] overflow-y-scroll"
-                  trigger={['Enter', 'Space', 'Comma']}
+                  format="yyyy-MM-dd"
+                  onChange={(hour) => field.handleChange(hour as Date)}
+                  className="w-full"
+                />
+              </div>
+            </div>
+          )}
+        />
+
+        <form.Field
+          name="nomor"
+          children={(field) => (
+            <div className="grid grid-cols-3 gap-4">
+              <Label value="Nomor Pelaporan" isRequired />
+              <div className="col-span-2">
+                <Input
+                  type="text"
+                  placeholder="Masukkan nomor ..."
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  value={field.state.value}
+                />
+              </div>
+            </div>
+          )}
+        />
+
+        <form.Field
+          name="judul"
+          children={(field) => (
+            <div className="grid grid-cols-3 gap-4">
+              <Label value="Judul Pelaporan" isRequired />
+              <div className="col-span-2">
+                <Input
+                  type="text"
+                  placeholder="Masukkan Judul Pelaporan ..."
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  value={field.state.value}
+                />
+              </div>
+            </div>
+          )}
+        />
+
+        <form.Field
+          name="jenis"
+          children={(field) => (
+            <div className="grid grid-cols-3 gap-4">
+              <Label value="Jenis Pelaporan" isRequired />
+              <div className="col-span-2">
+                <Select
+                  options={JenisLPLI}
+                  isModal
+                  placeholder="Pilih Jenis"
+                  className="w-full"
+                  value={field.state.value}
+                  onChange={(val) => field.handleChange(val as string)}
                 />
                 {field.state.meta.errors?.[0] && (
                   <p className="text-red-500 text-xs">
@@ -187,18 +141,138 @@ export function PelaporanLPLIFormContent({ onSuccess }: { onSuccess?: () => void
         />
 
         <form.Field
-          name="terlapor"
+          name="kronologis"
           children={(field) => (
-            <div className="grid grid-cols-1 gap-2">
-              <Label value="Terlapor" />
+            <div className="grid grid-cols-1 gap-4">
+              <Label value="Koronologis" isRequired />
               <div>
-                <TagInput
-                  onChange={(value) => field.handleChange(value as string[])}
+                <Textarea
+                  placeholder="Masukkan Kronologis ..."
+                  onChange={(e) => field.handleChange(e.target.value)}
                   value={field.state.value}
-                  block
-                  placeholder="Masukkan Terlapor dan pisahkan dengan [Enter]"
-                  className="w-full h-[80px] overflow-y-scroll"
-                  trigger={['Enter']}
+                  required
+                />
+                {field.state.meta.errors?.[0] && (
+                  <p className="text-red-500 text-xs">
+                    {field.state.meta.errors[0]}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        />
+
+        <div className="grid grid-cols-2 gap-4">
+          <form.Field
+            name="pasal"
+            children={(field) => (
+              <div className="grid grid-cols-1 gap-2">
+                <Label value="Pasal" isRequired />
+                <div>
+                  <TagInput
+                    onChange={(value) => field.handleChange(value as string[])}
+                    value={field.state.value}
+                    block
+                    placeholder="Masukkan Pasal dan pisahkan dengan [Enter]"
+                    className="w-full h-[80px]"
+                    trigger={['Enter']}
+                  />
+                  {field.state.meta.errors?.[0] && (
+                    <p className="text-red-500 text-xs">
+                      {field.state.meta.errors[0]}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+          />
+
+          <form.Field
+            name="terlapor"
+            children={(field) => (
+              <div className="grid grid-cols-1 gap-2">
+                <Label value="Terlapor" />
+                <div>
+                  <TagInput
+                    onChange={(value) => field.handleChange(value as string[])}
+                    value={field.state.value}
+                    block
+                    placeholder="Masukkan Terlapor dan pisahkan dengan [Enter]"
+                    className="w-full h-[80px]"
+                    trigger={['Enter']}
+                  />
+                  {field.state.meta.errors?.[0] && (
+                    <p className="text-red-500 text-xs">
+                      {field.state.meta.errors[0]}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+          />
+
+          <form.Field
+            name="pelapor"
+            children={(field) => (
+              <div className="grid grid-cols-1 gap-2">
+                <Label value="Pelapor" isRequired />
+                <div>
+                  <TagInput
+                    onChange={(value) => field.handleChange(value as string[])}
+                    value={field.state.value}
+                    block
+                    placeholder="Masukkan Pelapor dan pisahkan dengan [Enter]"
+                    className="w-full h-[80px]"
+                    trigger={['Enter']}
+                  />
+                  {field.state.meta.errors?.[0] && (
+                    <p className="text-red-500 text-xs">
+                      {field.state.meta.errors[0]}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+          />
+
+          <form.Field
+            name="saksi"
+            children={(field) => (
+              <div className="grid grid-cols-1 gap-2">
+                <Label value="Saksi" />
+                <div>
+                  <TagInput
+                    onChange={(value) => field.handleChange(value as string[])}
+                    value={field.state.value}
+                    block
+                    placeholder="Masukkan Saksi dan pisahkan dengan [Enter]"
+                    className="w-full h-[80px] overflow-y-scroll"
+                    trigger={['Enter']}
+                  />
+                  {field.state.meta.errors?.[0] && (
+                    <p className="text-red-500 text-xs">
+                      {field.state.meta.errors[0]}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+          />
+        </div>
+
+        <form.Field
+          name="status_proses"
+          children={(field) => (
+            <div className="grid grid-cols-3 gap-4">
+              <Label value="Status Proses" isRequired />
+              <div className="col-span-2">
+                <Select
+                  options={StatusProses}
+                  isModal
+                  placeholder="Pilih Status Proses"
+                  className="w-full"
+                  value={field.state.value}
+                  onChange={(val) => field.handleChange(val as string)}
                 />
                 {field.state.meta.errors?.[0] && (
                   <p className="text-red-500 text-xs">
@@ -211,18 +285,15 @@ export function PelaporanLPLIFormContent({ onSuccess }: { onSuccess?: () => void
         />
 
         <form.Field
-          name="pelapor"
+          name="catatan_hambatan"
           children={(field) => (
-            <div className="grid grid-cols-1 gap-2">
-              <Label value="Pelapor" isRequired />
+            <div className="grid grid-cols-1 gap-4">
+              <Label value="Hambatan" />
               <div>
-                <TagInput
-                  onChange={(value) => field.handleChange(value as string[])}
-                  value={field.state.value}
-                  block
-                  placeholder="Masukkan Pelapor dan pisahkan dengan [Enter]"
-                  className="w-full h-[80px] overflow-y-scroll"
-                  trigger={['Enter']}
+                <Textarea
+                  placeholder="Masukkan hambatan ..."
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  value={field.state.value ?? ""}
                 />
                 {field.state.meta.errors?.[0] && (
                   <p className="text-red-500 text-xs">
@@ -235,18 +306,36 @@ export function PelaporanLPLIFormContent({ onSuccess }: { onSuccess?: () => void
         />
 
         <form.Field
-          name="saksi"
+          name="rtl"
           children={(field) => (
-            <div className="grid grid-cols-1 gap-2">
-              <Label value="Saksi" />
+            <div className="grid grid-cols-1 gap-4">
+              <Label value="Rencana Tindak Lanjut" />
               <div>
-                <TagInput
-                  onChange={(value) => field.handleChange(value as string[])}
-                  value={field.state.value}
-                  block
-                  placeholder="Masukkan Saksi dan pisahkan dengan [Enter]"
-                  className="w-full h-[80px] overflow-y-scroll"
-                  trigger={['Enter']}
+                <Textarea
+                  placeholder="Masukkan rencana tindak lanjut ..."
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  value={field.state.value ?? ""}
+                />
+                {field.state.meta.errors?.[0] && (
+                  <p className="text-red-500 text-xs">
+                    {field.state.meta.errors[0]}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        />
+
+        <form.Field
+          name="keterangan"
+          children={(field) => (
+            <div className="grid grid-cols-1 gap-4">
+              <Label value="Keterangan" />
+              <div>
+                <Textarea
+                  placeholder="Masukkan keterangan ..."
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  value={field.state.value ?? ""}
                 />
                 {field.state.meta.errors?.[0] && (
                   <p className="text-red-500 text-xs">
@@ -258,96 +347,8 @@ export function PelaporanLPLIFormContent({ onSuccess }: { onSuccess?: () => void
           )}
         />
       </div>
-
-      <form.Field
-        name="status_proses"
-        children={(field) => (
-          <div className="grid grid-cols-3 gap-4">
-            <Label value="Status Proses" isRequired />
-            <div className="col-span-2">
-              <Select
-                options={StatusProses}
-                isModal
-                placeholder="Pilih Status Proses"
-                className="w-full"
-                value={field.state.value}
-                onChange={(val) => field.handleChange(val as string)}
-              />
-              {field.state.meta.errors?.[0] && (
-                <p className="text-red-500 text-xs">
-                  {field.state.meta.errors[0]}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-      />
-
-      <form.Field
-        name="catatan_hambatan"
-        children={(field) => (
-          <div className="grid grid-cols-1 gap-4">
-            <Label value="Hambatan" />
-            <div>
-              <Textarea
-                placeholder="Masukkan hambatan ..."
-                onChange={(e) => field.handleChange(e.target.value)}
-                value={field.state.value}
-              />
-              {field.state.meta.errors?.[0] && (
-                <p className="text-red-500 text-xs">
-                  {field.state.meta.errors[0]}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-      />
-
-      <form.Field
-        name="rtl"
-        children={(field) => (
-          <div className="grid grid-cols-1 gap-4">
-            <Label value="Rencana Tindak Lanjut" />
-            <div>
-              <Textarea
-                placeholder="Masukkan rencana tindak lanjut ..."
-                onChange={(e) => field.handleChange(e.target.value)}
-                value={field.state.value}
-              />
-              {field.state.meta.errors?.[0] && (
-                <p className="text-red-500 text-xs">
-                  {field.state.meta.errors[0]}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-      />
-
-      <form.Field
-        name="keterangan"
-        children={(field) => (
-          <div className="grid grid-cols-1 gap-4">
-            <Label value="Keterangan" />
-            <div>
-              <Textarea
-                placeholder="Masukkan keterangan ..."
-                onChange={(e) => field.handleChange(e.target.value)}
-                value={field.state.value}
-              />
-              {field.state.meta.errors?.[0] && (
-                <p className="text-red-500 text-xs">
-                  {field.state.meta.errors[0]}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-      />
-
-      <Button type="submit" disabled={mutation.isPending} className="w-full">
-        {mutation.isPending ? "Saving..." : "Submit"}
+      <Button type="submit" disabled={mutation.isPending} className="w-full mt-4">
+        {mutation.isPending ? "Updating..." : "Submit"}
       </Button>
     </form>
   );

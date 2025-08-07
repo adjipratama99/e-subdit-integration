@@ -3,7 +3,7 @@
 import { ServerTable } from "@/components/custom/data-table";
 import { columns } from "./components/columns";
 import useTableResponse from "@/hooks/useTableResponse";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { GET_LIST_ABSENSI } from "@/constant/key";
 import { useAbsensiRealtime } from "@/hooks/useAbsensiRealtime";
@@ -14,6 +14,8 @@ import { FaPlus } from "react-icons/fa";
 
 export default function Dashboard(): React.JSX.Element {
     const [open, setOpen] = useState<boolean>(false);
+    const [sort, setSort] = useState<{[key: string]: 1 | -1}>({})
+    const [search, setSearch] = useState<string>("")
 
     const {
         data,
@@ -23,15 +25,23 @@ export default function Dashboard(): React.JSX.Element {
         refetch,
     } = useTableResponse({
         rowEachPage: 10,
-        queryKey: [GET_LIST_ABSENSI],
+        queryKey: [GET_LIST_ABSENSI, sort, search],
         url: "/api/absensi",
-        params: { action: "READ" },
+        params: {
+            action: "READ",
+            ...(Object.keys(sort).length && { sort }),
+            ...(search && { search })
+        },
     });
 
     useAbsensiRealtime(() => {
         console.log("[Realtime] Changes detected, refetching data...");
         refetch();
     });
+
+    const handleSearch = useCallback((search: string) => {
+        setSearch(search)
+    }, [])
 
     return (
         <div className="p-4">
@@ -58,6 +68,10 @@ export default function Dashboard(): React.JSX.Element {
                 data={data?.content?.results ?? []}
                 pageCount={Math.ceil((data?.content?.count || 0) / pagination.pageSize)}
                 total={data?.content?.count ?? 0}
+                onSortChange={({ key, desc }) => {
+                    setSort({[key]: desc ? -1 : 1})
+                }}
+                onSearch={handleSearch}
                 pagination={pagination}
                 onPaginationChange={onPaginationChange}
                 isLoading={isLoading}

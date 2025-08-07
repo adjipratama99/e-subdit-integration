@@ -1,8 +1,8 @@
 "use client";
 
-import { useForm } from "@tanstack/react-form";
+import { useField, useForm } from "@tanstack/react-form";
 import { Button } from "@/components/ui/button";
-import React from "react";
+import React, { Fragment } from "react";
 import { useCustomMutation, useCustomQuery } from "@/hooks/useQueryData";
 import { GET_INSERT_ABSENSI, GET_LIST_PERSONNEL } from "@/constant/key";
 import { formatInTimeZone } from "date-fns-tz"
@@ -63,10 +63,10 @@ export function AbsensiFormContent({ onSuccess }: { onSuccess?: () => void }): R
   const form = useForm({
     defaultValues: {
       personel_id: "",
-      tanggal: formatInTimeZone(new Date(), 'UTC', 'yyyy-MM-dd'),
+      tanggal: new Date(formatInTimeZone(new Date(), 'UTC', 'yyyy-MM-dd')),
       jam_datang: startOfDay(new Date()),
       jam_pulang: endOfDay(new Date()),
-      status: "",
+      status: "Hadir",
     },
     onSubmit: async ({ value }) => {
       const {
@@ -79,11 +79,11 @@ export function AbsensiFormContent({ onSuccess }: { onSuccess?: () => void }): R
 
       const params = {
         action: "CREATE",
-        jam_datang: format(new Date(jam_datang), 'yyyy-MM-dd HH:mm'),
-        jam_pulang: format(new Date(jam_pulang), 'yyyy-MM-dd HH:mm'),
         status,
         personel_id,
-        tanggal
+        tanggal,
+        ...(jam_datang && { jam_datang }),
+        ...(jam_pulang && {jam_pulang })
       }
 
       await mutation.mutateAsync(params);
@@ -91,77 +91,13 @@ export function AbsensiFormContent({ onSuccess }: { onSuccess?: () => void }): R
     },
   });
 
+  const statusField = useField({ form, name: 'status' })
+
   return (
     <form onSubmit={(e) => {
         e.preventDefault()
         form.handleSubmit()
     }} className="space-y-4">
-      <form.Field
-        name="personel_id"
-        children={(field) => (
-          <div className="grid grid-cols-3 gap-4">
-            <Label value="Personel" isRequired />
-            <div className="col-span-2">
-              <Select
-                options={personnel}
-                isModal
-                placeholder="Pilih Personel"
-                className="w-full"
-                value={field.state.value}
-                onChange={(val) => field.handleChange(val as string)}
-              />
-            </div>
-          </div>
-        )}
-      />
-
-      <form.Field
-        name="jam_datang"
-        children={(field) => (
-          <div className="grid grid-cols-3 gap-4">
-            <Label value="Jam Datang" isRequired />
-            <div className="col-span-2">
-              <DatePicker
-                container={() => document.querySelector('[role="dialog"]') || document.body}
-                value={field.state.value}
-                shouldDisableDate={disableBeforeToday}
-                format="yyyy-MM-dd HH:mm"
-                onChange={(hour) => field.handleChange(hour as Date)}
-                className="w-full"
-              />
-              {field.state.meta.errors?.[0] && (
-                <p className="text-red-500 text-xs">
-                  {field.state.meta.errors[0]}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-      />
-
-      <form.Field
-        name="jam_pulang"
-        children={(field) => (
-          <div className="grid grid-cols-3 gap-4">
-            <Label value="Jam Pulang" isRequired />
-            <div className="col-span-2">
-              <DatePicker
-                container={() => document.querySelector('[role="dialog"]') || document.body}
-                value={field.state.value}
-                shouldDisableDate={disableAfterOneDays}
-                format="yyyy-MM-dd HH:mm"
-                onChange={(hour) => field.handleChange(hour as Date)}
-                className="w-full"
-              />
-              {field.state.meta.errors?.[0] && (
-                <p className="text-red-500 text-xs">
-                  {field.state.meta.errors[0]}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-      />
 
       <form.Field
         name="status"
@@ -185,6 +121,106 @@ export function AbsensiFormContent({ onSuccess }: { onSuccess?: () => void }): R
           </div>
         )}
       />
+
+      <form.Field
+        name="personel_id"
+        children={(field) => (
+          <div className="grid grid-cols-3 gap-4">
+            <Label value="Personel" isRequired />
+            <div className="col-span-2">
+              <Select
+                options={personnel}
+                isModal
+                placeholder="Pilih Personel"
+                className="w-full"
+                value={field.state.value}
+                onChange={(val) => field.handleChange(val as string)}
+              />
+            </div>
+          </div>
+        )}
+      />
+
+      <form.Field
+        name="tanggal"
+        children={(field) => (
+          <div className="grid grid-cols-3 gap-4">
+            <Label value="Pilih tanggal" isRequired />
+            <div className="col-span-2">
+              <DatePicker
+                container={() => document.querySelector('[role="dialog"]') || document.body}
+                value={field.state.value}
+                shouldDisableDate={disableBeforeToday}
+                cleanable={false}
+                format="yyyy-MM-dd HH:mm"
+                onChange={(hour) => field.handleChange(hour as Date)}
+                className="w-full"
+              />
+              {field.state.meta.errors?.[0] && (
+                <p className="text-red-500 text-xs">
+                  {field.state.meta.errors[0]}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+      />
+
+      {
+        statusField.state.value === "Hadir" && (
+          <Fragment>
+            <form.Field
+              name="jam_datang"
+              children={(field) => (
+                <div className="grid grid-cols-3 gap-4">
+                  <Label value="Jam Datang" isRequired />
+                  <div className="col-span-2">
+                    <DatePicker
+                      container={() => document.querySelector('[role="dialog"]') || document.body}
+                      value={field.state.value}
+                      shouldDisableDate={disableBeforeToday}
+                      cleanable={false}
+                      format="yyyy-MM-dd HH:mm"
+                      onChange={(hour) => field.handleChange(hour as Date)}
+                      className="w-full"
+                    />
+                    {field.state.meta.errors?.[0] && (
+                      <p className="text-red-500 text-xs">
+                        {field.state.meta.errors[0]}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+            />
+
+            <form.Field
+              name="jam_pulang"
+              children={(field) => (
+                <div className="grid grid-cols-3 gap-4">
+                  <Label value="Jam Pulang" isRequired />
+                  <div className="col-span-2">
+                    <DatePicker
+                      container={() => document.querySelector('[role="dialog"]') || document.body}
+                      value={field.state.value}
+                      shouldDisableDate={disableAfterOneDays}
+                      cleanable={false}
+                      format="yyyy-MM-dd HH:mm"
+                      onChange={(hour) => field.handleChange(hour as Date)}
+                      className="w-full"
+                    />
+                    {field.state.meta.errors?.[0] && (
+                      <p className="text-red-500 text-xs">
+                        {field.state.meta.errors[0]}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+            />
+          </Fragment>
+        )
+      }
 
       <Button type="submit" disabled={mutation.isPending} className="w-full">
         {mutation.isPending ? "Saving..." : "Submit"}

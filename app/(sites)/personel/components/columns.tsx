@@ -48,6 +48,7 @@ export const columns = [
           open={open}
           onOpenChange={setOpen}
           queryKey={[GET_LIST_PERSONNEL]}
+          noDelete
           type="personnel"
           content={<ContentUpdate data={info.row.original} onClose={setOpen} />}
         />

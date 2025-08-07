@@ -15,14 +15,18 @@ export default function ActionTable({
     open,
     onOpenChange,
     queryKey,
+    noUpdate = false,
+    noDelete = false,
     content
 }: {
-    type: "personnel" | "pendidikan",
-    data: Pendidikan | Personel | Penanganan,
+    type: "personnel" | "pendidikan" | "lp-li" | "absensi",
+    data: Pendidikan | Personel | Penanganan | AbsensiType,
     open: boolean,
     onOpenChange: React.Dispatch<React.SetStateAction<boolean>>
     queryKey: string[]
-    content: React.JSX.Element
+    noDelete?: boolean
+    noUpdate?: boolean
+    content?: React.JSX.Element
 }): React.JSX.Element {
     const { setLoading } = useLoading()
     const query = useQueryClient()
@@ -45,17 +49,26 @@ export default function ActionTable({
     
     return (
         <div className="flex items-center gap-2">
-            <Modal
-                open={open}
-                onOpenChange={onOpenChange}
-                title={`Update ${ type }`}
-                trigger={<Button size="sm" type="button" variant="secondary" className="gap-2"><FaPencilAlt />Ubah</Button>}
-                content={content}
-            />
-            <Confirmation
-                trigger={<Button size="sm" type="button" variant="destructive" className="gap-2"><FaTrashAlt />Hapus</Button>}
-                onConfirm={handleDelete}
-            />
+            {
+                !noUpdate && (
+                    <Modal
+                        open={open}
+                        onOpenChange={onOpenChange}
+                        title={`Update ${ type }`}
+                        className="sm:max-w-[600px]"
+                        trigger={<Button size="sm" type="button" variant="secondary" className="gap-2"><FaPencilAlt />Ubah</Button>}
+                        content={content}
+                    />
+                )
+            }
+            {
+                !noDelete && (
+                    <Confirmation
+                        trigger={<Button size="sm" type="button" variant="destructive" className="gap-2"><FaTrashAlt />Hapus</Button>}
+                        onConfirm={handleDelete}
+                    />
+                )
+            }
         </div>
     )
 }

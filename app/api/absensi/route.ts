@@ -65,6 +65,19 @@ export async function POST(req: Request) {
               .join(",");
             q = q.or(orFilter);
           }
+
+          // Apply date range filter
+          if (params?.dateFrom) {
+            q = q.gte("tanggal", new Date(params?.dateFrom).toISOString());
+          }
+          if (params?.dateUntil) {
+            q = q.lte("tanggal", new Date(params?.dateUntil).toISOString());
+          }
+      
+          // Apply jenis filter
+          if (params?.personel_id) {
+            q = q.eq("personel_id", params?.personel_id);
+          }
       
           return q;
         };

@@ -2,23 +2,22 @@
 
 import { Label } from "@/components/custom/form/label";
 import ModalTypeData from "@/components/custom/modal/data-type";
-import React, { Fragment, useRef, RefObject, useState } from "react";
+import React, { Fragment, useRef, RefObject, useState, useMemo } from "react";
 import 'rsuite/DateRangePicker/styles/index.css'
-import { DatePicker, DateRangePicker } from "rsuite";
-import { Select } from "@/components/custom/form/select";
+import { DateRangePicker } from "rsuite";
+import { Option, Select } from "@/components/custom/form/select";
 import { JenisLPLI } from "@/constant/options";
-const { allowedMaxDays } = DateRangePicker;
 
 import {
     toggleOpen,
     changeDateRange,
-    changeDate,
+    changePersonel,
     changeJenis
 } from "@/redux/slices/reportSlice"
 
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { useCustomQuery } from "@/hooks/useQueryData";
-import { GET_REPORT_LIST } from "@/constant/key";
+import { GET_LIST_PERSONNEL, GET_REPORT_LIST } from "@/constant/key";
 import { AbsensiType, Penanganan, Personel, ResponseTableTypes, TableHeader } from "@/types/general";
 import RenderPrintPreviewLPLI from "./components/render-print-lp-li";
 import { usePrint } from "@/hooks/use-print";
@@ -33,7 +32,7 @@ import { generateConfigTablePdf } from "@/lib/utils";
 export default function CetakLaporan(): React.JSX.Element {
     const printRef = useRef<HTMLDivElement>(null)
     const dispatch = useAppDispatch();
-    const { open, typeData, dateRange, jenis, date } = useAppSelector((state) => state.report);
+    const { open, typeData, dateRange, jenis, personel_id } = useAppSelector((state) => state.report);
     const [tableHead, setTableHead] = useState<TableHeader[][]>([])
     const [tableBody, setTableBody] = useState<any[]>([])
 
@@ -42,18 +41,22 @@ export default function CetakLaporan(): React.JSX.Element {
     const {
         data
     } = useCustomQuery({
-        queryKey: [GET_REPORT_LIST, typeData!, jenis, dateRange.dateFrom, dateRange.dateUntil, date],
+        queryKey: [GET_REPORT_LIST, typeData!, jenis, dateRange.dateFrom, dateRange.dateUntil, personel_id],
         url: `/api/${ typeData }`,
         params: {
             dateFrom: dateRange.dateFrom,
             dateUntil: dateRange.dateUntil,
             ...(jenis.length && { jenis }),
             ...(["personnel", "absensi"].includes(typeData!) && { report: true, offset: 0, limit: 9999 }),
-            ...(typeData === "absensi" && { date })
+            ...(personel_id && { personel_id })
         },
         makeLoading: true,
         enabled: !!typeData,
-        callbackResult(res) {
+    })
+
+    const dataResult = useMemo(() => {
+        if(data) {
+            const res = data as ResponseTableTypes
             if(res.code === 0) {
                 if(res.content.count) {
                     let dataReport = res.content.results
@@ -63,8 +66,28 @@ export default function CetakLaporan(): React.JSX.Element {
                     setTableBody(result)
                 }
             }
-            
-            return res as ResponseTableTypes
+
+            return res
+        }
+    }, [data])
+
+    const {
+        data: personel
+    } = useCustomQuery({
+        url: "/api/personnel",
+        queryKey: [GET_LIST_PERSONNEL],
+        params: { type: "READ", "offset": 0, "limit": 9999 },
+        makeLoading: true,
+        callbackResult(res) {
+            let results = [] as { [key: string]: string }[];
+            if(res.code === 0) {
+                if(res.content.count) {
+                    const dataPersonel = res.content.results as Personel[]
+                    results = dataPersonel.map(personel => ({ text: personel.nama, value: personel.id }))
+                }
+            }
+
+            return results;
         },
     })
 
@@ -72,28 +95,31 @@ export default function CetakLaporan(): React.JSX.Element {
         switch(typeData) {
             case "absensi":
                 generatePdf({
-                    title: `Absensi ${ formatInTimeZone(new Date(date), 'UTC', 'dd MMMM yyyy') }`,
+                    title: `Absensi ${ formatInTimeZone(new Date(dateRange.dateFrom), 'UTC', 'dd MMMM yyyy') } - ${ formatInTimeZone(new Date(dateRange.dateUntil), 'UTC', 'dd MMMM yyyy') }`,
                     tableHeaders: tableHead,
                     tableBody,
                     typeData,
+                    dateRange,
                     centerBody: true
                 })
                 break;
             case "personnel":
                 generatePdf({
-                    title: `PErsonnel ${ formatInTimeZone(new Date(date), 'UTC', 'dd MMMM yyyy') }`,
+                    title: `Personnel ${ formatInTimeZone(new Date(dateRange.dateFrom), 'UTC', 'dd MMMM yyyy') } - ${ formatInTimeZone(new Date(dateRange.dateUntil), 'UTC', 'dd MMMM yyyy') }`,
                     tableHeaders: tableHead,
                     tableBody,
                     typeData,
+                    dateRange,
                     centerBody: true
                 })
                 break;
             case "lp-li":
                 generatePdf({
-                    title: `Rekap Laporan Polisi ${ formatInTimeZone(new Date(date), 'UTC', 'dd MMMM yyyy') }`,
+                    title: `Rekap Laporan Polisi ${ formatInTimeZone(new Date(dateRange.dateFrom), 'UTC', 'dd MMMM yyyy') } - ${ formatInTimeZone(new Date(dateRange.dateUntil), 'UTC', 'dd MMMM yyyy') }`,
                     tableHeaders: tableHead,
                     tableBody,
                     typeData,
+                    dateRange,
                     centerBody: false
                 })
                 break;
@@ -116,7 +142,6 @@ export default function CetakLaporan(): React.JSX.Element {
                                                     <DateRangePicker
                                                         format="yyyy-MM-dd"
                                                         cleanable={false}
-                                                        shouldDisableDate={allowedMaxDays(30)}
                                                         onChange={(val) =>
                                                             dispatch(
                                                                 changeDateRange({
@@ -145,20 +170,33 @@ export default function CetakLaporan(): React.JSX.Element {
                                     }
                                     {
                                         typeData === "absensi" && (
-                                            <div className="flex items-center gap-2">
-                                                <Label value="Tanggal" isRequired />
-                                                <DatePicker
+                                            <Fragment>
+                                                <DateRangePicker
                                                     format="yyyy-MM-dd"
-                                                    className="relative z-20"
                                                     cleanable={false}
                                                     onChange={(val) =>
                                                         dispatch(
-                                                            changeDate(formatInTimeZone(val as Date, 'UTC', 'yyyy-MM-dd') as string)
+                                                            changeDateRange({
+                                                                dateFrom: val ? val[0].toISOString() : "",
+                                                                dateUntil: val ? val[1].toISOString() : "",
+                                                            })
                                                         )
                                                     }
-                                                    value={new Date(date)}
+                                                    value={[new Date(dateRange.dateFrom), new Date(dateRange.dateUntil)]}
                                                 />
-                                            </div>
+                                                <div className="flex items-center gap-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <Label value="Personel" />
+                                                        <Select
+                                                            className="z-30"
+                                                            options={personel as Option[]}
+                                                            onChange={(val) => dispatch(changePersonel(val as string))}
+                                                            placeholder="Pilih personel"
+                                                            value={personel_id}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </Fragment>
                                         )
                                     }
                                 </div>
@@ -168,8 +206,8 @@ export default function CetakLaporan(): React.JSX.Element {
                     )
                 }
                 {
-                    data && (
-                        data.code === 0 && data.content.count ?
+                    dataResult && (
+                        dataResult.code === 0 && dataResult.content.count ?
                         (
                             <div className="flex justify-center mt-10 h-auto">
                                 <div>
@@ -182,9 +220,9 @@ export default function CetakLaporan(): React.JSX.Element {
                                     </div>
                                     <div className="flex justify-center">
                                         <div className="w-[calc(100%-70px)] bg-gray-400 border h-[750px] overflow-y-scroll">
-                                            { typeData === "lp-li" && (<RenderPrintPreviewLPLI data={data.content.results as Penanganan[]} ref={printRef} />) }
-                                            { typeData === "personnel" && (<RenderPrintPreviewPendidikan data={data.content.results as Personel[]} ref={printRef} />) }
-                                            { typeData === "absensi" && (<RenderPrintPreviewAbsensi data={data.content.results as AbsensiType[]} date={new Date(date)} ref={printRef} />) }
+                                            { typeData === "lp-li" && (<RenderPrintPreviewLPLI data={dataResult.content.results as Penanganan[]} ref={printRef} />) }
+                                            { typeData === "personnel" && (<RenderPrintPreviewPendidikan data={dataResult.content.results as Personel[]} ref={printRef} />) }
+                                            { typeData === "absensi" && (<RenderPrintPreviewAbsensi data={dataResult.content.results as AbsensiType[]} dateRange={dateRange} ref={printRef} />) }
                                         </div>
                                     </div>
                                 </div>

@@ -1,4 +1,6 @@
 import { TableHeader } from "@/types/general";
+import { formatInTimeZone } from "date-fns-tz";
+import { id } from "date-fns/locale";
 import jsPDF from "jspdf";
 import autoTable, { CellHookData, Color, FontStyle, HAlignType, VAlignType } from 'jspdf-autotable';
 
@@ -9,6 +11,10 @@ interface PdfGeneratorProps {
   tableBody: any[][];
   typeData: "lp-li" | "absensi" | "personnel";
   centerBody?: boolean;
+  dateRange?: {
+    dateFrom: Date
+    dateUntil: Date
+  }
 }
 
 export const usePdfGenerator = () => {
@@ -16,6 +22,7 @@ export const usePdfGenerator = () => {
     orientation = "landscape",
     title,
     tableHeaders,
+    dateRange,
     tableBody,
     typeData,
     centerBody
@@ -52,7 +59,7 @@ export const usePdfGenerator = () => {
         const thirdLine = "ABSENSI / DAFTAR HADIR SUBDIT 1 INDAG";
         doc.text(thirdLine, centerX, 40, { align: "center" });
 
-        const fourthLine = "PADA HARI SELASA TANGGAL 07 AGUSTUS 2025";
+        const fourthLine = `PADA HARI SELASA TANGGAL ${ formatInTimeZone(new Date(dateRange?.dateFrom as Date), 'UTC', 'dd MMMM yyyy', { locale: id }) } - ${ formatInTimeZone(new Date(dateRange?.dateUntil as Date), 'UTC', 'dd MMMM yyyy', { locale: id }) }`;
         doc.text(fourthLine, centerX, 45, { align: "center" });
         const textWidth4 = doc.getTextWidth(fourthLine);
         doc.line(centerX - textWidth4 / 2, 46, centerX + textWidth4 / 2, 46); // underline lagi

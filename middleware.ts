@@ -8,7 +8,7 @@ export default async function middleware(req: NextRequest) {
 
   // Redirect authenticated users away from /
   if (req.nextUrl.pathname === '/' && isAuthenticated) {
-    return NextResponse.redirect(new URL('/dashboard', req.url))
+    return NextResponse.redirect(new URL('/personel', req.url))
   }
 
   // Only admin can access /users & /report
@@ -17,7 +17,7 @@ export default async function middleware(req: NextRequest) {
     req.nextUrl.pathname.startsWith(path)
   )
   if (isProtected && (!token || token.role !== 'admin')) {
-    return NextResponse.redirect(new URL('/dashboard', req.url))
+    return NextResponse.redirect(new URL('/personel', req.url))
   }
 
   // Jika butuh proteksi login di semua halaman lain:
