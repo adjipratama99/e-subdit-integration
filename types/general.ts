@@ -99,3 +99,16 @@ export type AbsensiType = {
     status: string | null;
     qr_code: string | null;
 };
+
+export type TableHeader = {
+    content: string;
+    styles?: {
+      fillColor?: string | number[];
+      textColor?: string | number[];
+      fontStyle?: string;
+      halign?: string;
+      valign?: string;
+    };
+    colSpan?: number
+    rowSpan?: number
+  }

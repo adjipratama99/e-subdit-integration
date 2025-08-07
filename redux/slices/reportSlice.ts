@@ -9,7 +9,7 @@ type DateRange = {
 interface ReportState {
     loading: boolean;
     open: boolean;
-    typeData: string;
+    typeData?: "lp-li" | "absensi" | "personnel" | undefined;
     hasClearedData: boolean;
     dateRange: DateRange;
     date: string;
@@ -19,7 +19,7 @@ interface ReportState {
 const initialState: ReportState = {
     loading: false,
     open: true,
-    typeData: "",
+    typeData: undefined,
     hasClearedData: false,
     dateRange: {
         dateFrom: format(subWeeks(new Date(), 1), 'yyyy-MM-dd'),
@@ -42,7 +42,7 @@ export const reportSlice = createSlice({
         toggleClearedData: (state, action: PayloadAction<boolean>) => {
             state.hasClearedData = action.payload;
         },
-        changeTypeData: (state, action: PayloadAction<string>) => {
+        changeTypeData: (state, action: PayloadAction<ReportState['typeData']>) => {
             state.typeData = action.payload;
         },
         changeDateRange: (state, action: PayloadAction<DateRange>) => {
