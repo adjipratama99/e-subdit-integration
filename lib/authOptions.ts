@@ -1,7 +1,6 @@
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { getUnixTime } from 'date-fns'
 import bcrypt from "bcrypt"
-import jwt from "jsonwebtoken"
 import { supabase } from './supabaseClient';
 import { JWT } from 'next-auth/jwt';
 import { Session, User } from 'next-auth';

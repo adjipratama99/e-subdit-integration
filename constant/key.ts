@@ -14,3 +14,5 @@ export const GET_INSERT_PENANGANAN_LP_LI="get-insert-penanganan-lp-li"
 export const GET_UPDATE_PENANGANAN_LP_LI="get-update-penanganan-lp-li"
 
 export const GET_REPORT_LIST="get-report-list"
+
+export const UPDATE_PASSWORD="update-password"
