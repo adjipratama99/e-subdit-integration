@@ -110,21 +110,28 @@ export async function POST(req: Request) {
       
         if (error) throw error;
       
-        // Enrich dengan file URLs berdasarkan nrp
-        const enriched = await Promise.all(
-          (data ?? []).map(async (row: any) => {
-            const nrp = row?.nrp?.toString() || "anon";
-            const [skepUrls, certifiedUrls] = await Promise.all([
-              listPublicUrlsByPrefix(`skep/${nrp}`, 'skep'),
-              listPublicUrlsByPrefix(`certified/${nrp}`, 'certified'),
-            ]);
-            return {
-              ...row,
-              skep_urls: skepUrls,           // array of public urls
-              certified_urls: certifiedUrls, // array of public urls
-            };
-          })
-        );
+        // Enrich dengan file URLs berdasarkan nrp, batasi concurrency untuk hemat memori
+        const rows = (data ?? []) as any[];
+        const concurrency = 8; // atur sesuai kebutuhan
+        const enriched: any[] = [];
+        for (let i = 0; i < rows.length; i += concurrency) {
+          const chunk = rows.slice(i, i + concurrency);
+          const part = await Promise.all(
+            chunk.map(async (row: any) => {
+              const nrp = row?.nrp?.toString() || "anon";
+              const [skepUrls, certifiedUrls] = await Promise.all([
+                listPublicUrlsByPrefix(`skep/${nrp}`, 'skep'),
+                listPublicUrlsByPrefix(`certified/${nrp}`, 'certified'),
+              ]);
+              return {
+                ...row,
+                skep_urls: skepUrls,
+                certified_urls: certifiedUrls,
+              };
+            })
+          );
+          enriched.push(...part);
+        }
       
         const sortedData = [
           ...(enriched as any[])?.filter((item) => item.pendidikan?.length > 0) || [],

@@ -16,6 +16,8 @@ export type ToFormDataOptions = {
     } = opts;
   
     const fd = new FormData();
+    // Guard untuk mencegah traversal sirkular yang bisa memicu OOM
+    const seen = new WeakSet<object>();
   
     const append = (key: string, value: any) => {
       // skip null/undefined
@@ -50,6 +52,8 @@ export type ToFormDataOptions = {
   
       // Array
       if (Array.isArray(value)) {
+        if (seen.has(value)) return; // hindari loop sirkular
+        seen.add(value);
         value.forEach((v, i) => {
           const k =
             arrayFormat === "indices" ? `${key}[${i}]` : `${key}[]`;
@@ -60,7 +64,18 @@ export type ToFormDataOptions = {
   
       // Object nested
       if (typeof value === "object") {
-        Object.entries(value).forEach(([childKey, childVal]) => {
+        const objVal = value as object;
+        if (seen.has(objVal)) {
+          // fallback aman: stringify objek sirkular tanpa traverse lebih jauh
+          try {
+            fd.append(key, JSON.stringify(value));
+          } catch {
+            fd.append(key, "[Circular]");
+          }
+          return;
+        }
+        seen.add(objVal);
+        Object.entries(value as Record<string, any>).forEach(([childKey, childVal]) => {
           append(`${key}[${childKey}]`, childVal);
         });
         return;

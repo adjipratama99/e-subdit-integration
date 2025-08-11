@@ -51,7 +51,8 @@ export type Pendidikan = {
     id: string;
     jenis: string;
     nama_sekolah: string;
-    personel: Personel;
+    // Hindari referensi siklik agar runtime object yang mengikuti tipe ini tidak memicu traversal sirkular
+    // personel: Personel; // dihilangkan pada tipe untuk DTO/transfer
     personel_id: string;
     tahun_mulai: number;
     tahun_selesai: number;
