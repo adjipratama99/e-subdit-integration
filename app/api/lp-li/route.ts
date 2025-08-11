@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
 const tableName = process.env.NEXT_PUBLIC_PENANGANAN_LP_LI_NAME as string;
 
 
 export async function POST(req: Request) {
+  const session = await getServerSession(authOptions)
   const params = await req.json();
   const action = params?.action || "READ";
   const offset = Number(params?.offset || 0);
@@ -13,7 +16,7 @@ export async function POST(req: Request) {
   try {
     switch (action) {
       case "CREATE": {
-        let dataLaporan = {...params};
+        let dataLaporan = {...params, user_create: session?.user?.name};
         delete dataLaporan.action;
 
         const { data, error } = await supabase
@@ -71,6 +74,10 @@ export async function POST(req: Request) {
           // Apply jenis filter
           if (jenis) {
             q = q.eq("jenis", jenis);
+          }
+
+          if(session?.user?.name !== "admin") {
+            q = q.eq("user_create", session?.user?.name);
           }
       
           return q;

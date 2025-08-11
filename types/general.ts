@@ -40,7 +40,9 @@ export type Personel = {
     kejuruan?: Pendidikan[];
     is_detective: boolean;
     skep: string;
-    certified: boolean;
+    certified: string;
+    skep_urls: string[];
+    certified_urls: string[];
     created_at: string; // ISO date string
     updated_at: string; // ISO date string
 };
@@ -52,6 +54,7 @@ export type Pendidikan = {
     personel: Personel;
     personel_id: string;
     tahun_mulai: number;
+    tahun_selesai: number;
     created_at: string
 }
 

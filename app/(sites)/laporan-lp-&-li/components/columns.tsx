@@ -1,67 +1,127 @@
-"use client";
+import React, { useState } from "react";
 
-import { useForm } from "@tanstack/react-form";
+import { Penanganan } from "@/types/general";
+import { createColumnHelper } from "@tanstack/react-table";
+import { formatInTimeZone } from "date-fns-tz";
 import { Button } from "@/components/ui/button";
-import React from "react";
-import 'rsuite/DatePicker/styles/index.css';
-import 'rsuite/TagInput/styles/index.css';
+import ActionTable from "@/components/custom/action-table";
+import { GET_LIST_PENANGANAN_LP_LI, GET_UPDATE_PERSONNEL } from "@/constant/key";
+import { useCustomMutation } from "@/hooks/useQueryData";
+import { useQueryClient } from "@tanstack/react-query";
+import { useForm } from "@tanstack/react-form";
 import { Label } from "@/components/custom/form/label";
 import { Input } from "@/components/ui/input";
-import { useQueryClient } from "@tanstack/react-query";
-import { Select } from "@/components/custom/form/select";
 import { JenisLPLI, StatusProses } from "@/constant/options";
+import { Select } from "@/components/custom/form/select";
+import { DatePicker, TagInput } from "rsuite";
 import { Textarea } from "@/components/ui/textarea";
-import { DatePicker } from "rsuite";
-import TagInput from 'rsuite/TagInput';
 
-import { useCustomMutation } from "@/hooks/useQueryData";
-import { GET_INSERT_PENANGANAN_LP_LI, GET_LIST_PENANGANAN_LP_LI } from "@/constant/key";
+const columnHelper = createColumnHelper<Penanganan>();
 
-export function PelaporanLPLIFormContent({ onSuccess }: { onSuccess?: () => void }): React.JSX.Element {
+export const columns = [
+  columnHelper.accessor("tanggal", {
+    header: "Tanggal",
+    cell: (info) =>
+      formatInTimeZone(info.getValue(), "UTC", "yyyy-MM-dd"),
+  }),
+
+  columnHelper.accessor("judul", {
+    header: "Judul",
+    cell: (info) => (
+      <div className="text-wrap">
+        {info.getValue() ?? "-"}
+      </div>
+    ),
+  }),
+  columnHelper.accessor("nomor", {
+    header: "Nomor Pelaporan",
+    cell: (info) => <div className="text-wrap">{ info.getValue() }</div>
+  }),
+  columnHelper.accessor("jenis", {
+    header: "Jenis",
+  }),
+  columnHelper.accessor("pasal", {
+    header: "Pasal",
+    cell: (info) => <ul>{ info.getValue().map(pasal => <li key={pasal} className="text-wrap list-decimal">{ pasal }</li>) }</ul>
+  }),
+  columnHelper.accessor("pelapor", {
+    header: "Pelapor",
+    cell: (info) => <ul>{ info.getValue().map(pelapor => <li key={pelapor} className="text-wrap list-decimal">{ pelapor }</li>) }</ul>
+  }),
+  columnHelper.accessor("terlapor", {
+    header: "Terlapor",
+    cell: (info) => <ul>{ info.getValue().map(terlapor => <li key={terlapor} className="text-wrap list-decimal">{ terlapor }</li>) }</ul>
+  }),
+  columnHelper.accessor("user_create", {
+    header: "Dibuat oleh"
+  }),
+  columnHelper.accessor("id", {
+    header: "Aksi",
+    cell: (info) => {
+      const [open, setOpen] = useState<boolean>(false)
+      
+      return (
+        <ActionTable
+          data={info.row.original}
+          open={open}
+          onOpenChange={setOpen}
+          queryKey={[GET_LIST_PENANGANAN_LP_LI]}
+          type="lp-li"
+          content={<ContentUpdate data={info.row.original} onClose={setOpen} />}
+        />
+      )
+    }
+  }),
+];
+
+function ContentUpdate({ data, onClose }: { data: Penanganan; onClose: React.Dispatch<React.SetStateAction<boolean>> }): React.JSX.Element {
   const query = useQueryClient()
 
   const mutation = useCustomMutation({
-    mutationKey: [GET_INSERT_PENANGANAN_LP_LI],
+    mutationKey: [GET_UPDATE_PERSONNEL],
     url: "/api/lp-li",
     makeLoading: true,
     callbackResult(res) {
       if(res.code === 0) {
-        onSuccess!()
         query.invalidateQueries({ queryKey: [GET_LIST_PENANGANAN_LP_LI] })
+        onClose(false)
       }
+
+      return res
     },
-  });
+  })
 
   const form = useForm({
     defaultValues: {
-      judul: "",
-      nomor: "",
-      tanggal: new Date(),
-      jenis: "",
-      kronologis: "",
-      pasal: [] as string[],
-      terlapor: [] as string[],
-      pelapor: [] as string[],
-      saksi: [] as string[],
-      status_proses: "",
-      catatan_hambatan: "",
-      rtl: "",
-      keterangan: "",
+      jenis: data.jenis,
+      nomor: data.nomor,
+      judul: data.judul,
+      tanggal: new Date(data.tanggal),
+      kronologis: data.kronologis,
+      pasal: data.pasal,
+      pelapor: data.pelapor,
+      saksi: data.saksi,
+      terlapor: data.terlapor,
+      status_proses: data.status_proses,
+      catatan_hambatan: data.catatan_hambatan,
+      rtl: data.rtl,
+      keterangan: data.keterangan,
     },
     onSubmit: async ({ value }) => {
       const params = {
-        action: "CREATE",
-        ...value
+        action: "UPDATE",
+        id: data.id,
+        updateData: { ...value }
       }
-      
-      await mutation.mutateAsync(params)
+
+      await mutation.mutateAsync(params);
     },
   });
 
   return (
     <form onSubmit={(e) => {
-        e.preventDefault()
-        form.handleSubmit()
+      e.preventDefault()
+      form.handleSubmit()
     }}>
       <div className="max-h-[600px] overflow-y-scroll space-y-4">
         <form.Field
@@ -351,5 +411,5 @@ export function PelaporanLPLIFormContent({ onSuccess }: { onSuccess?: () => void
         {mutation.isPending ? "Updating..." : "Submit"}
       </Button>
     </form>
-  );
+  )
 }

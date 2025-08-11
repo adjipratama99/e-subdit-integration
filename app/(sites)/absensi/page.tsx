@@ -19,6 +19,8 @@ export default function Dashboard(): React.JSX.Element {
 
     const {
         data,
+        offset,
+        limit,
         isLoading,
         onPaginationChange,
         pagination,
@@ -64,16 +66,14 @@ export default function Dashboard(): React.JSX.Element {
             </div>
 
             <ServerTable
+                offset={offset}
+                limit={limit}
                 columns={columns as ColumnDef<object, any>[]}
                 data={data?.content?.results ?? []}
-                pageCount={Math.ceil((data?.content?.count || 0) / pagination.pageSize)}
                 total={data?.content?.count ?? 0}
-                onSortChange={({ key, desc }) => {
-                    setSort({[key]: desc ? -1 : 1})
-                }}
                 onSearch={handleSearch}
                 pagination={pagination}
-                onPaginationChange={onPaginationChange}
+                onDataChange={onPaginationChange}
                 isLoading={isLoading}
             />
         </div>

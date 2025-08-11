@@ -24,6 +24,8 @@ type TableResponseHooksType = {
         pageIndex: number;
         pageSize: number;
     }
+    offset: number;
+    limit: number;
     isLoading: boolean;
     refetch: () => void;
 }
@@ -50,6 +52,8 @@ export default function useTableResponse({
     return {
         data,
         isLoading,
+        offset,
+        limit,
         onPaginationChange,
         refetch,
         pagination

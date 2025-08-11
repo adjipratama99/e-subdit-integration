@@ -2,8 +2,7 @@ import { BookText, HomeIcon, MessageCircleWarning, Printer, Users } from "lucide
 
 export const sidebarMenu = [
     { href: "/personel", icon: Users, label: "Personel" },
-    { href: "/absensi", icon: HomeIcon, label: "Absensi" },
-    { href: "/pendidikan", icon: BookText, label: "Pendidikan" },
-    { href: "/pelaporan-lp-&-li", icon: MessageCircleWarning, label: "Pelaporan LP & LI" },
+    // { href: "/absensi", icon: HomeIcon, label: "Absensi" },
+    { href: "/laporan-lp-&-li", icon: MessageCircleWarning, label: "Laporan LP & LI" },
     { href: "/cetak-laporan", icon: Printer, label: "Cetak Laporan" },
 ];

@@ -77,7 +77,14 @@ const Login = () => {
           toast.success("Successfully login!", {
             position: "top-center",
           });
-          router.push(redirectUrl || "/personel");
+
+          let redirect = redirectUrl || "/personel";
+
+          if(value.username !== "admin") {
+            redirect = "laporan-lp-&-li";
+          }
+
+          router.push(redirect);
         }
       };
 

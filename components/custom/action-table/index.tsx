@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
 import Confirmation from "../confirmation";
 import { Modal } from "../modal";
@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { AbsensiType, Penanganan, Pendidikan, Personel, ResponseTypes } from "@/types/general";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLoading } from "@/context/useLoadingContext";
+import { useSidebar } from "@/context/useSidebarContext";
 
 export default function ActionTable({
     type,
@@ -30,6 +31,8 @@ export default function ActionTable({
 }): React.JSX.Element {
     const { setLoading } = useLoading()
     const query = useQueryClient()
+    const [clicked, setClicked] = useState<boolean>(false);
+    const { toggle, close } = useSidebar()
 
     const handleDelete = async () => {
         setLoading(true)
@@ -46,6 +49,15 @@ export default function ActionTable({
             query.invalidateQueries({ queryKey })
         }
     }
+
+    useEffect(() => {
+        if(!open && clicked) {
+            close()
+            toggle()
+        } else {
+            if(clicked) toggle()
+        }
+    }, [open, clicked])
     
     return (
         <div className="flex items-center gap-2">
@@ -55,8 +67,8 @@ export default function ActionTable({
                         open={open}
                         onOpenChange={onOpenChange}
                         title={`Update ${ type }`}
-                        className="sm:max-w-[600px]"
-                        trigger={<Button size="sm" type="button" variant="secondary" className="gap-2"><FaPencilAlt />Ubah</Button>}
+                        className="sm:max-w-[calc(100%-80px)]"
+                        trigger={<Button size="sm" type="button" variant="secondary" className="gap-2" onClick={() => setClicked(true)}><FaPencilAlt />Ubah</Button>}
                         content={content}
                     />
                 )

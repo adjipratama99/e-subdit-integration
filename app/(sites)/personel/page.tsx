@@ -3,22 +3,27 @@
 import { ServerTable } from "@/components/custom/data-table";
 import { columns } from "./components/columns";
 import useTableResponse from "@/hooks/useTableResponse";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { GET_LIST_PERSONNEL } from "@/constant/key";
 import { PersonelFormContent } from "./components/insert-content";
 import { Modal } from "@/components/custom/modal";
 import { Button } from "@/components/ui/button";
 import { FaPlus } from "react-icons/fa";
+import { useSidebar } from "@/context/useSidebarContext";
 
 export default function Dashboard(): React.JSX.Element {
     const [open, setOpen] = useState<boolean>(false);
-    const [sort, setSort] = useState<{[key: string]: 1 | -1}>({})
+    const [clicked, setClicked] = useState<boolean>(false);
+    const [sort, setSort] = useState<{[key: string]: 1 | -1}>({ created_at: -1 })
     const [search, setSearch] = useState<string>("")
+    const { toggle, close } = useSidebar()
 
     const {
         data,
         isLoading,
+        offset,
+        limit,
         onPaginationChange,
         pagination,
     } = useTableResponse({
@@ -33,9 +38,17 @@ export default function Dashboard(): React.JSX.Element {
     });
 
     const handleSearch = useCallback((search: string) => {
-        console.log(search)
         setSearch(search)
     }, [])
+
+    useEffect(() => {
+        if(!open && clicked) {
+            close()
+            toggle()
+        } else {
+            if(clicked) toggle()
+        }
+    }, [open, clicked])
 
     return (
         <div className="p-4">
@@ -45,11 +58,12 @@ export default function Dashboard(): React.JSX.Element {
                     <Modal
                         title="Tambah Personel"
                         trigger={
-                            <Button size="sm" type="button">
+                            <Button size="sm" type="button" onClick={() => setClicked(true)}>
                                 <FaPlus className="mr-2" />
                                 Tambah Personel
                             </Button>
                         }
+                        className="sm:max-w-[calc(100%-80px)]"
                         open={open}
                         onOpenChange={setOpen}
                         content={<PersonelFormContent onSuccess={() => setOpen(false)} />}
@@ -58,16 +72,14 @@ export default function Dashboard(): React.JSX.Element {
             </div>
 
             <ServerTable
+                offset={offset}
+                limit={limit}
                 columns={columns as ColumnDef<object, any>[]}
                 data={data?.content?.results ?? []}
-                pageCount={Math.ceil((data?.content?.count || 0) / pagination.pageSize)}
                 total={data?.content?.count ?? 0}
-                onSortChange={({ key, desc }) => {
-                    setSort({[key]: desc ? -1 : 1})
-                }}
-                pagination={pagination}
                 onSearch={handleSearch}
-                onPaginationChange={onPaginationChange}
+                pagination={pagination}
+                onDataChange={onPaginationChange}
                 isLoading={isLoading}
             />
         </div>

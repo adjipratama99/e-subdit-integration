@@ -56,5 +56,5 @@ export const DataType = [{
     text: "Pendidikan"
 },{
     value: "lp-li",
-    text: "Pelaporan LP & LI"
+    text: "Laporan LP & LI"
 }]

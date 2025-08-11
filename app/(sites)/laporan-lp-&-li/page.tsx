@@ -6,18 +6,20 @@ import useTableResponse from "@/hooks/useTableResponse";
 import React, { useCallback, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { GET_LIST_PENANGANAN_LP_LI } from "@/constant/key";
-import { PelaporanLPLIFormContent } from "./components/insert-content";
+import { LaporanLPLIFormContent } from "./components/insert-content";
 import { Modal } from "@/components/custom/modal";
 import { Button } from "@/components/ui/button";
 import { FaPlus } from "react-icons/fa";
 
 export default function Dashboard(): React.JSX.Element {
     const [open, setOpen] = useState<boolean>(false);
-    const [sort, setSort] = useState<{[key: string]: 1 | -1}>({})
+    const [sort, setSort] = useState<{[key: string]: 1 | -1}>({ created_at: -1 });
     const [search, setSearch] = useState<string>("")
 
     const {
         data,
+        offset,
+        limit,
         isLoading,
         onPaginationChange,
         pagination,
@@ -52,19 +54,18 @@ export default function Dashboard(): React.JSX.Element {
                         className="sm:max-w-xl"
                         open={open}
                         onOpenChange={setOpen}
-                        content={<PelaporanLPLIFormContent onSuccess={() => setOpen(false)} />}
+                        content={<LaporanLPLIFormContent onSuccess={() => setOpen(false)} />}
                     />
                 </div>
             </div>
 
             <ServerTable
+                offset={offset}
+                limit={limit}
                 columns={columns as ColumnDef<object, any>[]}
                 data={data?.content?.results ?? []}
                 pageCount={Math.ceil((data?.content?.count || 0) / pagination.pageSize)}
                 total={data?.content?.count ?? 0}
-                onSortChange={({ key, desc }) => {
-                    setSort({[key]: desc ? -1 : 1})
-                }}
                 pagination={pagination}
                 onSearch={handleSearch}
                 onPaginationChange={onPaginationChange}
