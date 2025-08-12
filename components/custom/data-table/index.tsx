@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import {
   ColumnDef,
   flexRender,
@@ -23,15 +23,17 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  ChevronsLeft, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
   ChevronsRight,
   Search,
   ArrowUpDown,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Plus,
+  Minus
 } from "lucide-react";
 import usePagination from "@/hooks/usePagination";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -74,6 +76,8 @@ export function ServerTable<TData, TValue>({
   const [globalFilter, setGlobalFilter] = useState("");
   const [search, setSearch] = useState("");
   const debounceValue = useDebounceValue(search);
+  // State untuk melacak baris yang diperluas
+  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
   const table = useReactTable({
     data,
@@ -95,7 +99,6 @@ export function ServerTable<TData, TValue>({
     },
   });
 
-
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
   };
@@ -112,6 +115,17 @@ export function ServerTable<TData, TValue>({
   const totalPages = Math.ceil(total / pagination.pageSize);
   const currentPage = pagination.pageIndex + 1;
 
+  // Function untuk toggle expanded row
+  const toggleRow = (rowId: string) => {
+    setExpandedRows(prev => ({
+      ...prev,
+      [rowId]: !prev[rowId]
+    }));
+  };
+
+  // Kolom yang akan disembunyikan di mobile
+  const hiddenColumnsOnMobile = ["judul", "nomorPelaporan", "jenis"];
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4">
@@ -126,16 +140,20 @@ export function ServerTable<TData, TValue>({
           Total: <span className="font-medium">{total}</span> records
         </div>
       </div>
-      {/* Table Container with horizontal scroll on mobile */}
-      <div className="relative overflow-x-auto rounded-md border">
-        <Table>
+      {/* Table Container dengan horizontal scroll pada mobile */}
+      <div className="w-full max-w-full overflow-x-auto rounded-md border">
+        <Table className="table-auto min-w-[1200px]">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                {/* Kolom untuk tombol expand */}
+                <TableHead className="w-10 md:hidden"></TableHead>
                 {headerGroup.headers.map((header) => (
-                  <TableHead 
+                  <TableHead
                     key={header.id}
-                    className="font-semibold text-foreground whitespace-nowrap"
+                    className={`font-semibold text-foreground whitespace-nowrap ${
+                      hiddenColumnsOnMobile.includes(header.id) ? "hidden md:table-cell" : ""
+                    }`}
                   >
                     {header.isPlaceholder ? null : (
                       <div
@@ -175,6 +193,8 @@ export function ServerTable<TData, TValue>({
               // Loading skeletons
               Array.from({ length: pagination.pageSize }).map((_, index) => (
                 <TableRow key={index}>
+                  {/* Sel untuk tombol expand */}
+                  <TableCell className="w-10 md:hidden"></TableCell>
                   {columns.map((_, colIndex) => (
                     <TableCell key={colIndex}>
                       <Skeleton className="h-4 w-full" />
@@ -184,21 +204,61 @@ export function ServerTable<TData, TValue>({
               ))
             ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className="hover:bg-muted/50 transition-colors"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="whitespace-nowrap">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                <Fragment key={row.id}>
+                  <TableRow
+                    data-state={row.getIsSelected() && "selected"}
+                    className="hover:bg-muted/50 transition-colors"
+                  >
+                    {/* tombol expand */}
+                    <TableCell className="w-10 md:hidden">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleRow(row.id)}
+                        className="p-0 h-auto"
+                      >
+                        {expandedRows[row.id] ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                      </Button>
                     </TableCell>
-                  ))}
-                </TableRow>
+            
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
+                        key={cell.id}
+                        className={`whitespace-nowrap ${
+                          hiddenColumnsOnMobile.includes(cell.column.id) ? "hidden md:table-cell" : ""
+                        }`}
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+            
+                  {expandedRows[row.id] && (
+                    <TableRow key={`${row.id}-expanded`} className="md:hidden">
+                      <TableCell colSpan={columns.length + 1} className="p-4 bg-muted">
+                        <div className="flex flex-col space-y-2">
+                          {hiddenColumnsOnMobile.map((columnId) => {
+                            const header = table.getHeaderGroups()[0].headers.find(h => h.id === columnId);
+                            const cell = row.getVisibleCells().find(c => c.column.id === columnId);
+                            if (!header || !cell) return null;
+                            return (
+                              <div key={`${row.id}-${columnId}`}>
+                                <span className="font-semibold">
+                                  {flexRender(header.column.columnDef.header, header.getContext())}:
+                                </span>{" "}
+                                <span>{flexRender(cell.column.columnDef.cell, cell.getContext())}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </Fragment>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={columns.length + 1} className="h-24 text-center">
                   <div className="flex flex-col items-center justify-center space-y-2 text-muted-foreground">
                     <div className="text-lg">No results found</div>
                     <div className="text-sm">Try adjusting your search or filter criteria</div>
@@ -216,7 +276,7 @@ export function ServerTable<TData, TValue>({
           Showing {data.length > 0 ? offset + 1 : 0} to{" "}
           {Math.min(offset + pagination.pageSize, total)} of {total} results
         </div>
-        
+
         <div className="flex items-center space-x-2">
           <div className="flex items-center space-x-2">
             <p className="text-sm font-medium">Page</p>
@@ -225,7 +285,7 @@ export function ServerTable<TData, TValue>({
               <span className="text-sm text-muted-foreground">of {totalPages}</span>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <Button
               variant="outline"

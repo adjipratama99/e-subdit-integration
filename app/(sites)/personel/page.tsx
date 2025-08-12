@@ -17,7 +17,7 @@ export default function Dashboard(): React.JSX.Element {
     const [clicked, setClicked] = useState<boolean>(false);
     const [sort, setSort] = useState<{[key: string]: 1 | -1}>({ created_at: -1 })
     const [search, setSearch] = useState<string>("")
-    const { toggle, close } = useSidebar()
+    const { toggle, close, isOpen } = useSidebar()
 
     const {
         data,
@@ -42,11 +42,11 @@ export default function Dashboard(): React.JSX.Element {
     }, [])
 
     useEffect(() => {
-        if(!open && clicked) {
+        if(!open && clicked && isOpen) {
             close()
             toggle()
         } else {
-            if(clicked) toggle()
+            if(clicked && isOpen) toggle()
         }
     }, [open, clicked])
 

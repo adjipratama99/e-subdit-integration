@@ -21,7 +21,7 @@ export default function Topbar() {
                     onClick={toggle}
                     className={cn(
                         "p-2 rounded hover:bg-gray-100 transition text-black",
-                        isOpen && "ml-64 md:ml-0"
+                        isOpen && "ml-70 md:ml-0"
                     )}
                     aria-label="Toggle Sidebar"
                 >

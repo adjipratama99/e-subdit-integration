@@ -41,7 +41,7 @@ export default function Dashboard(): React.JSX.Element {
     return (
         <div className="p-4">
             <div className="flex w-full min-w-0 justify-between items-center flex-wrap gap-4 mb-4">
-                <h1 className="text-xl font-bold flex-shrink-0">Data Pelaporan LP & LI</h1>
+                <h1 className="text-xl font-bold flex-shrink-0">Data Laporan LP & LI</h1>
                 <div className="flex-shrink-0">
                     <Modal
                         title="Tambah Pelaporan"

@@ -144,15 +144,3 @@
     @apply mt-0.5
   }
 }
-
-table {
-  table-layout: fixed; /* Untuk main table */
-}
-
-.shadow-table {
-  table-layout: auto; /* Untuk hidden table */
-  visibility: hidden;
-  height: 0;
-  overflow: hidden;
-  position: absolute;
-}

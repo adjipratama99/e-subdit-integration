@@ -32,7 +32,7 @@ export default function ActionTable({
     const { setLoading } = useLoading()
     const query = useQueryClient()
     const [clicked, setClicked] = useState<boolean>(false);
-    const { toggle, close } = useSidebar()
+    const { toggle, close, isOpen } = useSidebar()
 
     const handleDelete = async () => {
         setLoading(true)
@@ -51,13 +51,13 @@ export default function ActionTable({
     }
 
     useEffect(() => {
-        if(!open && clicked) {
+        if(!open && clicked && isOpen) {
             close()
             toggle()
         } else {
-            if(clicked) toggle()
+            if(clicked && isOpen) toggle()
         }
-    }, [open, clicked])
+    }, [open, clicked, isOpen])
     
     return (
         <div className="flex items-center gap-2">
