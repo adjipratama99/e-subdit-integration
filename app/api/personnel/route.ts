@@ -38,7 +38,7 @@ export async function POST(req: Request) {
 
         const { data: personel, error: personelError } = await supabase
           .from(tableName)
-          .insert([{ nama, jabatan, nrp, pangkat, skep: (hasSkep ? skepFiles[0].name : null), certified: (hasCertified ? certifiedFiles[0].name : null), is_detective }])
+          .insert([{ nama, jabatan, nrp, pangkat, skep: (hasSkep ? skepFiles[0]?.name : null), certified: (hasCertified ? certifiedFiles[0]?.name : null), is_detective }])
           .select("*");
 
         if (personelError) throw personelError;
